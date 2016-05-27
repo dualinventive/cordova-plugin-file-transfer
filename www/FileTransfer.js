@@ -110,6 +110,7 @@ FileTransfer.prototype.upload = function(filePath, server, successCallback, erro
     var chunkedMode = true;
     var headers = null;
     var httpMethod = null;
+    var useStoredCookies = false;
     var basicAuthHeader = getBasicAuthHeader(server);
     if (basicAuthHeader) {
         server = server.replace(getUrlCredentials(server) + '@', '');
@@ -139,6 +140,7 @@ FileTransfer.prototype.upload = function(filePath, server, successCallback, erro
         else {
             params = {};
         }
+        useStoredCookies = options.useStoredCookies || false;
     }
 
     if (cordova.platformId === "windowsphone") {
@@ -163,7 +165,7 @@ FileTransfer.prototype.upload = function(filePath, server, successCallback, erro
             }
         }
     };
-    exec(win, fail, 'FileTransfer', 'upload', [filePath, server, fileKey, fileName, mimeType, params, trustAllHosts, chunkedMode, headers, this._id, httpMethod]);
+    exec(win, fail, 'FileTransfer', 'upload', [filePath, server, fileKey, fileName, mimeType, params, trustAllHosts, chunkedMode, headers, this._id, httpMethod, useStoredCookies]);
 };
 
 /**
@@ -189,8 +191,10 @@ FileTransfer.prototype.download = function(source, target, successCallback, erro
     }
 
     var headers = null;
+    var useStoredCookies = false;
     if (options) {
         headers = options.headers || null;
+        useStoredCookies = options.useStoredCookies || false;
     }
 
     if (cordova.platformId === "windowsphone" && headers) {
@@ -225,7 +229,7 @@ FileTransfer.prototype.download = function(source, target, successCallback, erro
         errorCallback(error);
     };
 
-    exec(win, fail, 'FileTransfer', 'download', [source, target, trustAllHosts, this._id, headers]);
+    exec(win, fail, 'FileTransfer', 'download', [source, target, trustAllHosts, this._id, headers, useStoredCookies]);
 };
 
 /**

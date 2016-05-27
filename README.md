@@ -101,6 +101,7 @@ __Parameters__:
   - __params__: A set of optional key/value pairs to pass in the HTTP request. (Object, key/value - DOMString)
   - __chunkedMode__: Whether to upload the data in chunked streaming mode. Defaults to `true`. (Boolean)
   - __headers__: A map of header name/header values. Use an array to specify more than one value.  On iOS, FireOS, and Android, if a header named Content-Type is present, multipart form data will NOT be used. (Object)
+  - __useStoredCookies__: Optional parameter, defaults to false. If set to true the stored cookies belonging to the given server will be added to the cookie header. Supported on Windows. (Boolean)
 
 - __trustAllHosts__: Optional parameter, defaults to `false`. If set to `true`, it accepts all security certificates. This is useful since Android rejects self-signed security certificates. Not recommended for production use. Supported on Android and iOS. _(boolean)_
 
@@ -220,7 +221,9 @@ __Parameters__:
 
 - __trustAllHosts__: Optional parameter, defaults to `false`. If set to `true`, it accepts all security certificates. This is useful because Android rejects self-signed security certificates. Not recommended for production use. Supported on Android and iOS. _(boolean)_
 
-- __options__: Optional parameters, currently only supports headers (such as Authorization (Basic Authentication), etc).
+- __options__: Optional parameters _(Object)_. Valid keys:
+  - __headers__: A map of header name/header values. Use an array to specify more than one value. (Object)
+  - __useStoredCookies__: Optional parameter, defaults to false. If set to true the stored cookies belonging to the given source will be added to the cookie header. Supported on Windows. (Boolean)
 
 ### Example
 

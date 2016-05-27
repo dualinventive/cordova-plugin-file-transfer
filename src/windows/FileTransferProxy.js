@@ -145,6 +145,48 @@ function doUpload (upload, uploadId, filePath, server, successCallback, errorCal
     );
 }
 
+function addStoredCookies(useStoredCookies, transferer, uri, headers) {
+    /// <signature>
+    /// <summary>Adds stored cookies to the transferer's cookie header</summary>
+    ///	<param name='useStoredCookies' type='boolean'>
+    ///     Indicates the stored cookies should be added
+    /// </param>
+    /// <param name='transferer' type='BackgroundUploader|BackgroundDownloader'>
+    ///     The background uploader or downloader to add the cookie header to
+    /// </param>
+    /// <param name='uri' type='Uri'>
+    ///     The uri to get the stored cookies for
+    /// </param>
+    /// <param name='headers' type='Object'>
+    ///     The headers already added to the transferer
+    /// </param>
+    /// </signature>
+
+    // Check if the stored cookies should be used in the request header
+    if (useStoredCookies === true) {
+        // Get the cookie manager
+        var filter = new Windows.Web.Http.Filters.HttpBaseProtocolFilter();
+        var cookieManager = filter.cookieManager;
+        var cookies = '';
+
+        // Concatenate all the cookies in the cookie manager
+        cookieManager.getCookies(uri).forEach(function (cookie) {
+            cookies += cookie['name'] + '=' + cookie['value'] + ';';
+        });
+
+        // Check to see if cookie has been set in the headers
+        if ('cookie' in headers) {
+            // Append it to the cookies string
+            cookies += headers['cookie'];
+        }
+
+        if (cookies !== '') {
+            // Set cookie header
+            transferer.setRequestHeader('cookie', cookies);
+        }
+    }
+}
+
 function FileTransferOperation(state, promise) {
     this.state = state;
     this.promise = promise;
@@ -174,6 +216,7 @@ exec(win, fail, 'FileTransfer', 'upload',
         var headers = options[8] || {};
         var uploadId = options[9];
         var httpMethod = options[10];
+        var useStoredCookies = options[11] || false;
 
         var isMultipart = typeof headers["Content-Type"] === 'undefined';
 
@@ -282,6 +325,9 @@ exec(win, fail, 'FileTransfer', 'upload',
                 // create download object. This will throw an exception if URL is malformed
                 var uri = new Windows.Foundation.Uri(server);
 
+                // Add stored cookies
+                addStoredCookies(useStoredCookies, uploader, uri, headers);
+
                 var createUploadOperation;
                 try {
                     createUploadOperation = uploader.createUploadFromStreamAsync(uri, stream);
@@ -350,6 +396,9 @@ exec(win, fail, 'FileTransfer', 'upload',
             // create download object. This will throw an exception if URL is malformed
             var uri = new Windows.Foundation.Uri(server);
 
+            // Add stored cookies
+            addStoredCookies(useStoredCookies, uploader, uri, headers);
+
             var createUploadOperation;
             try {
                 if (isMultipart) {
@@ -400,6 +449,7 @@ exec(win, fail, 'FileTransfer', 'upload',
         var target = options[1];
         var downloadId = options[3];
         var headers = options[4] || {};
+        var useStoredCookies = options[5] || false;
 
         if (!target) {
             errorCallback(new FTErr(FTErr.FILE_NOT_FOUND_ERR));
@@ -457,6 +507,9 @@ exec(win, fail, 'FileTransfer', 'upload',
                     errorCallback(new FTErr(FTErr.INVALID_URL_ERR));
                     return;
                 }
+
+                // Add stored cookies
+                addStoredCookies(useStoredCookies, downloader, uri, headers);
 
                 var downloadOperation = download.startAsync();
                 // update internal TransferOperation object with newly created promise
